@@ -8,6 +8,10 @@ Upload → AI reads & audits (OCR + 5 forensic signal families) → cross-check 
 
 One answer, four honest levels: **L3 PROVEN** (issuer-signed / DigiLocker) · **L2 CONFIRMED** (matches official register) · **L1 PLAUSIBLE** (clean, no register) · **L0 REJECTED** (tamper evidence).
 
+## Live
+
+https://saakshya.divyanshshukla.com — one container on Dokploy (`Dockerfile` at repo root builds the SvelteKit site and serves it from FastAPI).
+
 ## Run
 
 ```bash
