@@ -1,4 +1,5 @@
 <script lang="ts">
+	import jsQR from 'jsqr';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { Camera, ShieldCheck, ShieldAlert, WifiOff, Link2, KeyRound, X } from 'lucide-svelte';
@@ -32,8 +33,9 @@
 		if (!jwt) return;
 		try { payload = decodeJwt(jwt).payload; } catch { parseErr = 'Not a valid credential (expected header.payload.signature).'; return; }
 		if (!pk) sig = 'nokey';
-		else { try { sig = (await verifyJwtSignature(jwt, pk.jwk)) ? 'ok' : 'bad'; } catch { sig = 'bad'; } }
+		else { try { sig = (await verifyJwtSignature(jwt, pk.jwk)) ? 'ok' : 'bad'; } catch { sig = 'pending'; } } // throws where WebCrypto lacks Ed25519 (iOS Safari): defer to server
 		if (navigator.onLine) { try { remote = await api.credentialVerify(jwt); } catch (e) { remoteErr = (e as Error).message; } }
+		if (sig === 'pending') sig = !remote ? 'nokey' : remote.reason?.startsWith('invalid signature') || remote.reason === 'unknown key/alg' ? 'bad' : 'ok';
 	}
 
 	async function startScan() {
@@ -42,11 +44,20 @@
 			stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
 			if (video) { video.srcObject = stream; await video.play(); }
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const det = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
+			const det = hasBarcode ? new (window as any).BarcodeDetector({ formats: ['qr_code'] }) : null;
+			const cv = document.createElement('canvas');
 			const loop = async () => {
 				if (!scanning || !video) return;
-				const codes = await det.detect(video).catch(() => []);
-				if (codes[0]?.rawValue) { input = codes[0].rawValue; stopScan(); check(); return; }
+				let raw = '';
+				if (det) raw = (await det.detect(video).catch(() => []))[0]?.rawValue ?? '';
+				else if (video.videoWidth) { // jsQR fallback (Safari/Firefox)
+					cv.width = video.videoWidth; cv.height = video.videoHeight;
+					const ctx = cv.getContext('2d', { willReadFrequently: true })!;
+					ctx.drawImage(video, 0, 0);
+					const d = ctx.getImageData(0, 0, cv.width, cv.height);
+					raw = jsQR(d.data, d.width, d.height)?.data ?? '';
+				}
+				if (raw) { input = raw; stopScan(); check(); return; }
 				requestAnimationFrame(loop);
 			};
 			loop();
@@ -77,11 +88,7 @@
 		<textarea id="jwt" bind:value={input} rows="4" class="mono mt-2 w-full resize-y rounded border hairline bg-paper-2 px-3 py-2 text-xs text-ink/85 placeholder:text-ink/30" placeholder="eyJhbGciOiJFZERTQSIs…"></textarea>
 		<div class="mt-3 flex flex-wrap gap-2">
 			<button class="btn btn-primary" onclick={check} disabled={!input.trim()}><KeyRound size={14} /> Verify</button>
-			{#if hasBarcode}
-				<button class="btn btn-ghost" onclick={scanning ? stopScan : startScan}><Camera size={14} /> {scanning ? 'Stop' : 'Scan QR'}</button>
-			{:else}
-				<span class="self-center text-xs text-ink/40">QR scanning needs Chrome/Edge — paste instead.</span>
-			{/if}
+			<button class="btn btn-ghost" onclick={scanning ? stopScan : startScan}><Camera size={14} /> {scanning ? 'Stop' : 'Scan QR'}</button>
 		</div>
 		{#if scanning}
 			<div class="relative mt-3 overflow-hidden rounded border border-violet/40">
