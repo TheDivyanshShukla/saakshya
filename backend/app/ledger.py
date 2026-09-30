@@ -1,4 +1,4 @@
-"""Merkle-batched append-only chain in sqlite."""
+"""Merkle-batched append-only chain (sqlite locally, Postgres in prod)."""
 import datetime
 import hashlib
 import json

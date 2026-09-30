@@ -1,5 +1,6 @@
-"""sqlite (stdlib) + on-disk artifact layout."""
+"""sqlite locally, Postgres when DATABASE_URL is set; plus on-disk artifact layout."""
 import json
+import os
 import sqlite3
 import threading
 from pathlib import Path
@@ -10,6 +11,8 @@ ARTIFACTS = DATA / "artifacts"
 SAMPLES = DATA / "samples"
 KEYS = DATA / "keys"
 DB_PATH = DATA / "saakshya.db"
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+PG = DATABASE_URL.startswith(("postgres://", "postgresql://"))
 
 LOCK = threading.RLock()  # ponytail: one global connection + lock; fine for a demo box
 _conn: sqlite3.Connection | None = None
@@ -31,20 +34,42 @@ def init():
     global _conn
     for d in (ARTIFACTS, SAMPLES, KEYS):
         d.mkdir(parents=True, exist_ok=True)
-    _conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    _conn.row_factory = sqlite3.Row
-    _conn.executescript(SCHEMA)
+    if PG:
+        import psycopg
+        from psycopg.rows import dict_row
+        # ponytail: single connection, no reconnect; a Postgres restart fails the healthcheck and the container restarts
+        _conn = psycopg.connect(DATABASE_URL, autocommit=True, row_factory=dict_row)
+        _conn.execute(SCHEMA.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY")
+                      .replace("REAL", "DOUBLE PRECISION"))
+    else:
+        _conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+        _conn.row_factory = sqlite3.Row
+        _conn.executescript(SCHEMA)
+
+
+def _sql(sql: str) -> str:
+    return sql.replace("?", "%s") if PG else sql
 
 
 def run(sql, params=(), fetch=None):
     with LOCK:
-        cur = _conn.execute(sql, params)
+        cur = _conn.execute(_sql(sql), params)
         _conn.commit()
         if fetch == "one":
             return cur.fetchone()
         if fetch == "all":
             return cur.fetchall()
         return cur
+
+
+def run_many(sql, rows):
+    with LOCK:
+        if PG:
+            with _conn.cursor() as cur:
+                cur.executemany(_sql(sql), rows)
+        else:
+            _conn.executemany(sql, rows)
+            _conn.commit()
 
 
 def artifact_dir(vid: str) -> Path:
@@ -55,7 +80,9 @@ def artifact_dir(vid: str) -> Path:
 
 def save_verification(res: dict, salt: str, leaf: str):
     run(
-        "INSERT OR REPLACE INTO verifications VALUES(?,?,?,?,?,?,?,?)",
+        "INSERT INTO verifications VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET "
+        "created_at=excluded.created_at, trust_level=excluded.trust_level, needs_human=excluded.needs_human, "
+        "total_ms=excluded.total_ms, salt=excluded.salt, leaf_hash=excluded.leaf_hash, result=excluded.result",
         (res["id"], res["created_at"], res["trust_level"], int(res["needs_human"]),
          res["timings_ms"]["total"], salt, leaf, json.dumps(res)),
     )

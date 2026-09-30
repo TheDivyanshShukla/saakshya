@@ -47,11 +47,9 @@ def seed(n: int = 120):
         pan.append((f"{p}{rnd.randint(1000, 9999)}{rnd.choice('ABCDEFGHJKLMNPRSTUVWXYZ')}",
                     f"{rnd.choice(FIRST)} {rnd.choice(LAST)}",
                     f"{rnd.randint(1, 28):02d}/{rnd.randint(1, 12):02d}/{rnd.randint(1970, 2004)}"))
-    with store.LOCK:
-        store._conn.executemany("INSERT OR IGNORE INTO rgpv_results VALUES(?,?,?,?,?)", rg)
-        store._conn.executemany("INSERT OR IGNORE INTO mpbse_results VALUES(?,?,?,?)", mp)
-        store._conn.executemany("INSERT OR IGNORE INTO pan_registry VALUES(?,?,?)", pan)
-        store._conn.commit()
+    store.run_many("INSERT INTO rgpv_results VALUES(?,?,?,?,?) ON CONFLICT DO NOTHING", rg)
+    store.run_many("INSERT INTO mpbse_results VALUES(?,?,?,?) ON CONFLICT DO NOTHING", mp)
+    store.run_many("INSERT INTO pan_registry VALUES(?,?,?) ON CONFLICT DO NOTHING", pan)
 
 
 def list_registers() -> list[dict]:
