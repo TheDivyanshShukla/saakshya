@@ -12,6 +12,7 @@ EXPECT = {  # sample -> (allowed trust levels, cross_check status)
     "pan_card.png": ({2}, "match"),
     "unknown_college.png": ({1}, "no_register"),
     "digilocker_signed.pdf": ({3}, "match"),
+    "ai_generated.png": ({0}, "match"),  # register match cannot rescue AI provenance
 }
 
 
@@ -69,6 +70,35 @@ def test_ledger_and_credential(client, results):
     assert client.get("/api/ledger/verify").json()["valid"] is True
     for path in ("/api/artifacts/%s/preview.png", "/api/artifacts/%s/heatmap.png", "/api/artifacts/%s/qr.png"):
         assert client.get(path % r["id"]).status_code == 200
+
+
+def test_provenance(results):
+    assert results["ai_generated.png"]["provenance"]["ai_generated"]
+    assert results["rgpv_genuine.png"]["provenance"] == {"ai_generated": False, "evidence": [], "c2pa_manifest": False}
+    from PIL import Image
+    from PIL.PngImagePlugin import PngInfo
+    import io
+    from app import provenance
+    info, buf = PngInfo(), io.BytesIO()
+    info.add_text("parameters", "a photo of a marksheet, Steps: 20, Sampler: Euler")
+    Image.new("RGB", (8, 8)).save(buf, "PNG", pnginfo=info)
+    assert provenance.check(buf.getvalue())["ai_generated"]
+
+
+def test_pan_structure():
+    from app.registers import pan_problem
+    assert pan_problem("KZTPD6857C", "BHUPENDRA DHAKAD") is None
+    assert pan_problem("ABCPS1234K", "AMIT SINGH") is None
+    assert pan_problem("KZTXD6857C", None)  # X is not a holder type
+    assert pan_problem("KZTPD685C", None)  # too short
+    assert pan_problem("KZTPD6857C", "BHUPENDRA SHARMA")  # 5th letter must be the surname initial
+
+
+def test_bilingual_labels():
+    from app import ocr
+    box = lambda t, x1, x2, y=100: {"box": [x1, y, x2, y + 20], "text": t, "conf": 0.9}
+    fields = ocr.extract([box("/Name", 10, 90), box("Bhupendra Dhakad", 300, 500), box("footer", 900, 1000, 400)])["fields"]
+    assert fields["name"] == "BHUPENDRA DHAKAD"
 
 
 def test_misc_endpoints(client, results):

@@ -12,6 +12,7 @@ export interface CrossCheck {
 	mismatched_fields: { key: string; document: string; register: string }[];
 	digilocker: 'signed' | 'unsigned' | 'n/a';
 }
+export interface Provenance { ai_generated: boolean; evidence: string[]; c2pa_manifest: boolean }
 export interface ProofStep { hash: string; position: 'left' | 'right' }
 export interface Ledger { batch_id: number; block_hash: string; merkle_root: string; leaf_hash: string; proof?: ProofStep[]; tx_index: number; timestamp: string }
 export interface Credential { jwt: string; qr_url: string; verify_url: string; revoked?: boolean }
@@ -20,12 +21,12 @@ export interface VerificationResult {
 	trust_level: TrustLevel; trust_label: TrustLabel; confidence: number; needs_human: boolean;
 	fields: Record<string, string>; field_boxes: FieldBox[];
 	content_hash: string; file_hash: string;
-	forensics: Forensics; cross_check: CrossCheck; ledger: Ledger; credential: Credential;
+	forensics: Forensics; cross_check: CrossCheck; provenance?: Provenance; ledger: Ledger; credential: Credential;
 	preview_url: string; timings_ms: Record<string, number>; created_at: string;
 }
 export interface Block { index: number; hash: string; prev_hash: string; merkle_root: string; tx_count: number; timestamp: string; leaves: string[] }
 export interface Stats { total: number; by_level: Record<string, number>; avg_ms: number; blocks: number; human_review: number }
-export interface Sample { name: string; kind: 'genuine' | 'tampered' | 'unknown_issuer' | 'pan'; url: string }
+export interface Sample { name: string; kind: 'genuine' | 'tampered' | 'unknown_issuer' | 'pan' | 'ai_generated'; url: string }
 export interface CredentialCheck { valid: boolean; payload: JwtPayload | null; revoked: boolean; anchored: boolean; reason: string | null }
 export interface PublicKey { kid: string; alg: string; jwk: JsonWebKey }
 export interface JwtPayload {

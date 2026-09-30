@@ -11,7 +11,7 @@ REGISTERS = {
     MPBSE: {"id": "mpbse_results", "key": "roll_no", "fields": ["roll_no", "name", "percentage", "year"]},
     ITD: {"id": "pan_registry", "key": "pan", "fields": ["pan", "name", "dob"]},
 }
-MINOR_FIELDS = {"year", "course", "dob"}
+MINOR_FIELDS = {"year", "course", "dob", "pan_format"}  # OCR can garble these; a lone miss goes to an officer
 
 FIRST = ["RAHUL", "PRIYA", "AMIT", "SNEHA", "VIKAS", "POOJA", "ANKIT", "NEHA", "ROHIT", "KAVITA", "SURESH", "ANJALI",
          "DEEPAK", "MEENA", "ARJUN", "RITU", "MANISH", "SHWETA", "GAURAV", "NIDHI"]
@@ -78,12 +78,31 @@ def _same(key: str, doc, reg) -> bool:
     return _norm(doc) == _norm(reg)
 
 
+PAN_RE = re.compile(r"[A-Z]{3}[ABCFGHLJPT][A-Z]\d{4}[A-Z]")
+
+
+def pan_problem(pan: str, name: str | None) -> str | None:
+    """Structure check that needs no register: 4th char = holder type, 5th = surname initial (individuals)."""
+    if not PAN_RE.fullmatch(pan):
+        return "AAAAA9999A with a valid 4th (holder type) letter"
+    if pan[3] == "P" and name and name.split():
+        initial = re.sub(r"[^A-Z]", "", name.upper().split()[-1])[:1]
+        if initial and pan[4] != initial:
+            return f"5th letter should be surname initial {initial}"
+    return None
+
+
 def cross_check(fields: dict, digilocker: str) -> dict:
     issuer = fields.get("issuer") or "Unknown"
     out = {"issuer": issuer, "register": None, "status": "no_register",
            "matched_fields": [], "mismatched_fields": [], "digilocker": digilocker}
     reg = REGISTERS.get(issuer)
     if not reg:
+        return out
+    if issuer == ITD and fields.get("pan") and (bad := pan_problem(fields["pan"], fields.get("name"))):
+        out["mismatched_fields"].append({"key": "pan_format", "document": fields["pan"], "register": bad})
+        out["status"] = "mismatch"
+        out["register"] = reg["id"]
         return out
     out["register"] = reg["id"]
     key = fields.get(reg["key"])

@@ -6,6 +6,7 @@ import random
 import numpy as np
 import pymupdf
 from PIL import Image, ImageDraw, ImageFont
+from PIL.PngImagePlugin import PngInfo
 
 from . import store
 from .registers import FIXED_MPBSE, FIXED_PAN, FIXED_RGPV
@@ -19,8 +20,12 @@ NAVY, GOLD, RED = (20, 40, 120), (180, 150, 60), (150, 30, 30)
 SAMPLES = [  # name, kind
     ("rgpv_genuine.png", "genuine"), ("rgpv_tampered.png", "tampered"), ("mpbse_genuine.jpg", "genuine"),
     ("mpbse_mismatch.png", "tampered"), ("pan_card.png", "pan"), ("unknown_college.png", "unknown_issuer"),
-    ("digilocker_signed.pdf", "genuine"),
+    ("digilocker_signed.pdf", "genuine"), ("ai_generated.png", "ai_generated"),
 ]
+XMP_AI = ('<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">'
+          '<rdf:Description xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/">'
+          '<Iptc4xmpExt:DigitalSourceType>http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia'
+          '</Iptc4xmpExt:DigitalSourceType></rdf:Description></rdf:RDF></x:xmpmeta>')
 
 
 def font(size: int, bold=False) -> ImageFont.FreeTypeFont:
@@ -205,6 +210,9 @@ def generate(force=False):
     pan_card(FIXED_PAN[0]).save(out / "pan_card.png")
     unknown_college().save(out / "unknown_college.png")
     digilocker_pdf(FIXED_RGPV[1], out / "digilocker_signed.pdf")
+    info = PngInfo()  # what a Gemini/Imagen/OpenAI-made file carries: XMP DigitalSourceType = trainedAlgorithmicMedia
+    info.add_itxt("XML:com.adobe.xmp", XMP_AI)
+    im.save(out / "ai_generated.png", pnginfo=info)
 
 
 def list_samples() -> list[dict]:

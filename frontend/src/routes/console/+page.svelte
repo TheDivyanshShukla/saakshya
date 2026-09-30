@@ -46,8 +46,8 @@
 		try { result = await api.verification(v.id); } catch { result = v; }
 		stage = -1;
 	}
-	const kindColor: Record<Sample['kind'], string> = { genuine: 'var(--green)', tampered: 'var(--red)', unknown_issuer: 'var(--amber)', pan: 'var(--blue)' };
-	const kindLabel: Record<Sample['kind'], string> = { genuine: 'genuine', tampered: 'forged', unknown_issuer: 'no register', pan: 'PAN' };
+	const kindColor: Record<Sample['kind'], string> = { genuine: 'var(--green)', tampered: 'var(--red)', unknown_issuer: 'var(--amber)', pan: 'var(--blue)', ai_generated: 'var(--red)' };
+	const kindLabel: Record<Sample['kind'], string> = { genuine: 'genuine', tampered: 'forged', unknown_issuer: 'no register', pan: 'PAN', ai_generated: 'AI-made' };
 </script>
 
 <svelte:head><title>Officer console — SAAKSHYA</title></svelte:head>

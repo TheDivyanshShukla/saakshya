@@ -115,6 +115,19 @@
 					{/if}
 				</section>
 
+					{#if r.provenance}
+						<section class="sheet p-5">
+							{@render head('AI provenance', r.provenance.c2pa_manifest ? 'C2PA manifest present' : 'no C2PA manifest')}
+							{#if r.provenance.ai_generated}
+								<p class="typed flex items-center gap-1.5 text-sm text-red"><ShieldAlert size={16} /> Marked as AI-generated</p>
+								<ul class="mt-2 list-disc pl-5 text-xs text-ink/70">{#each r.provenance.evidence as e (e)}<li>{e}</li>{/each}</ul>
+							{:else}
+								<p class="typed text-sm text-green">No AI markers in the file</p>
+								<p class="mt-1 text-xs text-ink/55">Metadata check only. Screenshots and stripped files carry no markers.</p>
+							{/if}
+						</section>
+					{/if}
+
 				<section class="sheet p-5">
 					{@render head('Ledger anchor', `block #${r.ledger.batch_id} · tx ${r.ledger.tx_index}`)}
 					<div class="space-y-2">

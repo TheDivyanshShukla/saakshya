@@ -38,6 +38,9 @@ Returns `VerificationResult`:
     "mismatched_fields": [ {"key":"cgpa","document":"9.1","register":"7.2"} ],
     "digilocker": "signed|unsigned|n/a"
   },
+  "provenance": {                     // AI-generation markers in the file bytes; true forces L0
+    "ai_generated": false, "evidence": ["..."], "c2pa_manifest": false
+  },
   "ledger": {
     "batch_id": 12, "block_hash": "…", "merkle_root": "…", "leaf_hash": "…",
     "proof": [{"hash":"…","position":"left|right"}], "tx_index": 3, "timestamp": "ISO"

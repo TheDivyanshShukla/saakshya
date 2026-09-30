@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from . import credential, forensics, ledger, ocr, registers, samples, store
+from . import credential, forensics, ledger, ocr, provenance, registers, samples, store
 
 FRONTEND = os.environ.get("FRONTEND_URL", "http://localhost:5173")
 LABELS = {0: "REJECTED", 1: "PLAUSIBLE", 2: "CONFIRMED", 3: "PROVEN"}
@@ -45,9 +45,11 @@ app = FastAPI(title="SAAKSHYA", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
-def decide(f_score: float, cross: dict) -> tuple[int, bool, float]:
+def decide(f_score: float, cross: dict, ai: bool = False) -> tuple[int, bool, float]:
     st, mism = cross["status"], cross["mismatched_fields"]
-    if cross["digilocker"] == "signed" and f_score < 0.5:
+    if ai:  # an official record is never AI-generated; overrides everything, even a register match
+        level = 0
+    elif cross["digilocker"] == "signed" and f_score < 0.5:
         level = 3
     elif st == "match" and f_score < 0.45:
         level = 2
@@ -56,10 +58,10 @@ def decide(f_score: float, cross: dict) -> tuple[int, bool, float]:
     else:
         level = 1
     minor_only = st == "mismatch" and len(mism) == 1 and mism[0]["key"] in registers.MINOR_FIELDS
-    needs_human = 0.4 <= f_score < 0.6 or minor_only
+    needs_human = (0.4 <= f_score < 0.6 or minor_only) and not ai
     clean = 1 - f_score
     conf = {3: 0.85 + 0.15 * clean, 2: 0.7 + 0.3 * clean, 1: 0.4 + 0.3 * clean,
-            0: max(f_score, 0.75 if st == "mismatch" else 0)}[level]
+            0: max(f_score, 0.95 if ai else 0.75 if st == "mismatch" else 0)}[level]
     if needs_human:
         conf = min(conf, 0.6)
     return level, needs_human, round(conf, 3)
@@ -92,7 +94,8 @@ async def verify(file: UploadFile = File(...), issuer_hint: str | None = Form(No
 
     digi = ocr.digilocker_status(raw, is_pdf, pdf_text + "\n" + ex["text"])
     cross = registers.cross_check(fields, digi)
-    level, needs_human, conf = decide(fx["score"], cross)
+    prov = provenance.check(raw)
+    level, needs_human, conf = decide(fx["score"], cross, prov["ai_generated"])
     t["cross_check"] = time.perf_counter()
 
     chash = ocr.content_hash(fields)
@@ -106,7 +109,7 @@ async def verify(file: UploadFile = File(...), issuer_hint: str | None = Form(No
         "id": vid, "filename": file.filename, "doc_type": ex["doc_type"],
         "trust_level": level, "trust_label": LABELS[level], "confidence": conf, "needs_human": needs_human,
         "fields": fields, "field_boxes": ex["field_boxes"], "content_hash": chash,
-        "file_hash": hashlib.sha256(raw).hexdigest(), "forensics": fx, "cross_check": cross, "ledger": anchor,
+        "file_hash": hashlib.sha256(raw).hexdigest(), "forensics": fx, "cross_check": cross, "provenance": prov, "ledger": anchor,
         "preview_url": f"/api/artifacts/{vid}/preview.png",
         "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     }

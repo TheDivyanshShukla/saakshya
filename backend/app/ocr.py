@@ -144,7 +144,8 @@ def extract(boxes: list[dict]) -> dict:
     width = max((b["box"][2] for b in boxes), default=1)
     for li, ln in enumerate(lines):
         for i, b in enumerate(ln):
-            t = b["text"].upper().strip()
+            # bilingual labels ("नाम / Name"): the Hindi half OCRs to 0-4 junk chars before the slash
+            t = re.sub(r"^[^/]{0,4}/\s*", "", b["text"].upper().strip())
             for key, pat in LABELS.items():
                 m = re.match(pat, t)
                 if not m:
@@ -169,7 +170,7 @@ def extract(boxes: list[dict]) -> dict:
             put("aadhaar", m.group(0), b)
         if "dob" not in fields and (m := re.search(VALUE_RE["dob"], up)):
             put("dob", m.group(0), b)
-    if "year" not in fields:
+    if "year" not in fields and "pan" not in fields:  # a PAN card has no year; the only 20xx on it is the signing date
         for b in boxes:
             if not re.search(VALUE_RE["dob"], b["text"]) and (m := re.search(r"\b(?:19|20)\d{2}\b", b["text"])):
                 put("year", m.group(0), b)
