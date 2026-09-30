@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 
 import cv2
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -68,7 +69,7 @@ def decide(f_score: float, cross: dict, ai: bool = False) -> tuple[int, bool, fl
 
 
 @app.post("/api/verify")
-async def verify(file: UploadFile = File(...), issuer_hint: str | None = Form(None)):
+async def verify(request: Request, file: UploadFile = File(...), issuer_hint: str | None = Form(None)):
     t = {"start": time.perf_counter()}
     raw = await file.read()
     vid = "ver_" + uuid.uuid4().hex[:12]
@@ -114,7 +115,8 @@ async def verify(file: UploadFile = File(...), issuer_hint: str | None = Form(No
         "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     }
     cred = credential.issue(res)
-    verify_url = f"{FRONTEND}/verify/{cred['jwt']}"
+    origin = os.environ.get("FRONTEND_URL") or request.headers.get("origin") or str(request.base_url).rstrip("/")
+    verify_url = f"{origin}/verify/{cred['jwt']}"
     credential.make_qr(verify_url, out / "qr.png")
     res["credential"] = {"jwt": cred["jwt"], "qr_url": f"/api/artifacts/{vid}/qr.png", "verify_url": verify_url}
     keys = ["ingest", "ocr", "forensics", "cross_check", "anchor"]

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>SAAKSHYA — Flow, Tech, Cause and Effect</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:wght@400;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@page { size: A4 landscape; margin: 11mm 12mm; }
+:root { --paper:#f1ece0; --sheet:#faf7f0; --ink:#1a1c22; --ink2:#4b4e57; --ink3:#8a8c93; --line:#d6cfbf; --violet:#5535a3; --green:#22694f; --red:#b5301c; --amber:#a8690f; --blue:#24418c; --kraft:#d8b98a; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin:0; font-family:'Public Sans',sans-serif; color:var(--ink); font-size:9.6pt; line-height:1.38; }
+h1 { font-family:'Bricolage Grotesque'; font-weight:800; font-size:27pt; letter-spacing:-.03em; margin:0; line-height:1; }
+h2 { font-family:'Bricolage Grotesque'; font-weight:800; font-size:17pt; letter-spacing:-.02em; margin:0 0 2mm; }
+.mono { font-family:'Courier Prime',monospace; }
+.eyebrow { font-family:'Courier Prime',monospace; font-size:8pt; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); }
+.page { page-break-after: always; min-height: 186mm; position: relative; }
+.page:last-child { page-break-after: auto; }
+.foot { position:absolute; bottom:0; left:0; right:0; display:flex; justify-content:space-between; font-family:'Courier Prime'; font-size:7.5pt; color:var(--ink3); border-top:1px solid var(--line); padding-top:1.5mm; }
+.v { color:var(--violet); } .g { color:var(--green); } .r { color:var(--red); } .a { color:var(--amber); } .b { color:var(--blue); }
+
+/* flow */
+.flow { display:grid; grid-template-columns: repeat(7, 1fr); gap:0; margin-top:6mm; align-items:stretch; }
+.step { position:relative; background:var(--sheet); border:1.2px solid var(--ink); padding:3mm 2.6mm 3mm; margin-right:5mm; box-shadow:1.2mm 1.2mm 0 var(--ink); }
+.step:last-child { margin-right:0; }
+.step:not(:last-child)::after { content:'▶'; position:absolute; right:-4.6mm; top:50%; transform:translateY(-50%); font-size:9pt; color:var(--ink); }
+.step .n { font-family:'Bricolage Grotesque'; font-weight:800; font-size:20pt; color:#c9c2b2; line-height:1; }
+.step .t { font-family:'Courier Prime'; font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:9.5pt; margin-top:1mm; }
+.step .k { font-size:8pt; color:var(--ink2); margin-top:1.5mm; }
+.step .o { font-family:'Courier Prime'; font-size:7.4pt; color:var(--blue); margin-top:2mm; border-top:1px dashed var(--line); padding-top:1.5mm; }
+.io { display:flex; justify-content:space-between; align-items:center; margin-top:5mm; gap:4mm; }
+.pill { border:1.2px solid var(--ink); padding:2mm 3mm; background:#fff; font-family:'Courier Prime'; font-size:8.5pt; font-weight:700; }
+.branch { display:grid; grid-template-columns: 1.1fr 3fr; gap:6mm; margin-top:6mm; }
+.rules { background:var(--sheet); border:1px solid var(--line); padding:3mm 4mm; }
+.rules table { width:100%; border-collapse:collapse; font-size:8.6pt; }
+.rules td { padding:1.2mm 0; border-bottom:1px solid var(--line); vertical-align:top; }
+.rules tr:last-child td { border-bottom:0; }
+.stamps { display:grid; grid-template-columns: repeat(4,1fr); gap:4mm; }
+.st { background:var(--sheet); border:1px solid var(--line); padding:3mm; }
+.stamp { display:inline-block; border:2px solid; outline:1px solid; outline-offset:1.5px; padding:1.2mm 2.6mm; font-family:'Bricolage Grotesque'; font-weight:800; letter-spacing:.12em; font-size:11pt; transform:rotate(-4deg); margin:1.5mm 0 3mm; }
+.st p { margin:0; font-size:8.3pt; color:var(--ink2); }
+.st b { color:var(--ink); }
+
+/* detail tables */
+table.d { width:100%; border-collapse:collapse; font-size:8.7pt; margin-top:2mm; }
+table.d th { font-family:'Courier Prime'; font-size:7.6pt; text-transform:uppercase; letter-spacing:.08em; text-align:left; color:var(--ink3); font-weight:400; border-bottom:2px solid rgba(34,105,79,.45); padding:1.2mm 2mm 1.2mm 0; }
+table.d td { vertical-align:top; padding:1.9mm 2.5mm 1.9mm 0; border-bottom:1px solid var(--line); }
+table.d td:first-child { font-family:'Courier Prime'; font-weight:700; width:15%; }
+table.d td:nth-child(2) { width:27%; } table.d td:nth-child(3) { width:27%; } table.d td:nth-child(4) { width:31%; }
+.ce { display:block; } .ce i { font-style:normal; font-family:'Courier Prime'; font-size:7.4pt; text-transform:uppercase; letter-spacing:.06em; color:var(--ink3); }
+.hd { display:flex; align-items:baseline; gap:4mm; border-bottom:1.2px solid var(--ink); padding-bottom:2mm; margin-bottom:1mm; }
+.hd .num { font-family:'Bricolage Grotesque'; font-weight:800; font-size:26pt; color:#c9c2b2; line-height:.9; }
+.hd p { margin:0; color:var(--ink2); font-size:9pt; }
+.two { display:grid; grid-template-columns:1fr 1fr; gap:7mm; }
+.note { background:var(--sheet); border-left:3px solid var(--violet); padding:2.5mm 3.5mm; font-size:8.7pt; margin-top:3mm; }
+code { font-family:'Courier Prime'; font-size:8.6pt; background:#fff; border:1px solid var(--line); padding:0 1mm; }
+pre { font-family:'Courier Prime'; font-size:8.2pt; background:#fff; border:1px solid var(--line); padding:2.5mm 3mm; margin:2mm 0 0; white-space:pre-wrap; line-height:1.35; }
+</style></head><body>
+
+<!-- ============================ PAGE 1: the flow -->
+<section class="page">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end">
+    <div><div class="eyebrow">SISTec Innovation Hackathon 2026 · PS IS-21 · MP Online · Team Saakshya</div>
+    <h1>SAAKSHYA <span class="v">flow</span>: what runs, why, and what it causes</h1></div>
+    <div class="mono" style="font-size:8.5pt;text-align:right;color:var(--ink2)">live: saakshya.divyanshshukla.com<br>one call: POST /api/verify</div>
+  </div>
+
+  <div class="io"><span class="pill">IN · PNG / JPG / PDF</span><span class="eyebrow" style="flex:1;border-top:1px dashed var(--ink3);padding-top:1mm;text-align:center">seven stages, one request, one JSON response, fully reproducible</span><span class="pill">OUT · trust level + proof + signed credential</span></div>
+
+  <div class="flow">
+    <div class="step"><div class="n">01</div><div class="t">Ingest</div><div class="k">SHA-256 of bytes. PDF page rendered to image at 150 dpi.</div><div class="o">file_hash · preview.png</div></div>
+    <div class="step"><div class="n">02</div><div class="t">Extract</div><div class="k">RapidOCR (DBNet + CRNN, ONNX). Regex typing into fields.</div><div class="o">fields · boxes · doc_type</div></div>
+    <div class="step"><div class="n">03</div><div class="t">Audit</div><div class="k">ELA, noise residual, copy-move, metadata, template. Weighted fusion.</div><div class="o">tamper score · heatmap</div></div>
+    <div class="step"><div class="n">04</div><div class="t">Cross-check</div><div class="k">Lookup in issuer register by roll no / PAN. Field-by-field compare.</div><div class="o">match · mismatch · none</div></div>
+    <div class="step"><div class="n">05</div><div class="t">Decide</div><div class="k">Rule table over tamper score and cross-check. Human flag.</div><div class="o">L0–L3 · needs_human</div></div>
+    <div class="step"><div class="n">06</div><div class="t">Anchor</div><div class="k">Salted leaf hash, Merkle tree, hash-chained block.</div><div class="o">block · root · proof</div></div>
+    <div class="step"><div class="n">07</div><div class="t">Issue</div><div class="k">Ed25519-signed token, QR. Verifies offline in browser.</div><div class="o">credential.jwt · qr.png</div></div>
+  </div>
+
+  <div class="branch">
+    <div class="rules"><div class="eyebrow" style="margin-bottom:1.5mm">Stage 05 decision rules</div>
+      <table>
+        <tr><td>DigiLocker signed, tamper &lt; 0.50</td><td class="mono v"><b>L3</b></td></tr>
+        <tr><td>Register match, tamper &lt; 0.45</td><td class="mono g"><b>L2</b></td></tr>
+        <tr><td>Tamper ≥ 0.60, or register mismatch</td><td class="mono r"><b>L0</b></td></tr>
+        <tr><td>Otherwise (no register, clean)</td><td class="mono a"><b>L1</b></td></tr>
+        <tr><td>Tamper 0.40–0.60, or one minor field off</td><td class="mono"><b>human</b></td></tr>
+      </table>
+    </div>
+    <div class="stamps">
+      <div class="st"><span class="stamp v">PROVEN</span><p><b>L3.</b> Issuer's own signature verifies. Cryptographic proof, nothing more to check.</p></div>
+      <div class="st"><span class="stamp g">CONFIRMED</span><p><b>L2.</b> Every claim matches the issuer's register. Forensics clean.</p></div>
+      <div class="st"><span class="stamp a">PLAUSIBLE</span><p><b>L1.</b> Looks clean but no register exists. We never say verified here.</p></div>
+      <div class="st"><span class="stamp r">REJECTED</span><p><b>L0.</b> Tamper evidence or register contradiction. Goes to an officer.</p></div>
+    </div>
+  </div>
+
+  <div class="note"><b>Reading the next pages.</b> For every stage: the technology or algorithm, why we chose it, and the cause-and-effect chain, meaning what input condition triggers what result downstream. Blockchain does one job only (stage 06): prove a verdict existed at a time and was not changed. It does not detect forgery.</div>
+  <div class="foot"><span>SAAKSHYA · flow, tech, cause and effect</span><span>1 / 6</span></div>
+</section>
+
+<!-- ============================ PAGE 2: stages 1-2 -->
+<section class="page">
+  <div class="hd"><span class="num">01</span><div><h2>Ingest</h2><p>Turn any upload into a fingerprint and a uniform image.</p></div></div>
+  <table class="d"><tr><th>Step</th><th>Tech / algorithm</th><th>Why this</th><th>Cause → effect</th></tr>
+    <tr><td>File fingerprint</td><td>SHA-256 over the raw bytes (<code>hashlib</code>)</td><td>Collision-resistant identity of the exact file submitted. Standard, fast, court-friendly.</td><td><span class="ce"><i>cause</i> same bytes uploaded twice</span><span class="ce"><i>effect</i> identical <code>file_hash</code>, so a resubmission is provable</span></td></tr>
+    <tr><td>Type sniff</td><td>Magic bytes (<code>%PDF</code>) not the file extension</td><td>Extensions lie. A renamed file must not bypass PDF structure checks.</td><td><span class="ce"><i>cause</i> PDF detected</span><span class="ce"><i>effect</i> PDF-only forensics and DigiLocker check are enabled in stages 3 and 4</span></td></tr>
+    <tr><td>Rasterise</td><td>PyMuPDF renders page 1 at 150 dpi to PNG</td><td>OCR and pixel forensics need an image. 150 dpi keeps text legible and stays under 2 s on CPU.</td><td><span class="ce"><i>cause</i> every input becomes one image</span><span class="ce"><i>effect</i> one code path for scans, photos and PDFs</span></td></tr>
+  </table>
+
+  <div class="hd" style="margin-top:7mm"><span class="num">02</span><div><h2>Extract</h2><p>Read the document into typed claims, then fingerprint the claim itself.</p></div></div>
+  <table class="d"><tr><th>Step</th><th>Tech / algorithm</th><th>Why this</th><th>Cause → effect</th></tr>
+    <tr><td>Text detection</td><td>RapidOCR: DBNet finds text regions (differentiable binarisation), returns a box per line</td><td>PaddleOCR-grade accuracy through ONNX Runtime. No GPU, no PyTorch, installs in seconds.</td><td><span class="ce"><i>cause</i> a box per text line</span><span class="ce"><i>effect</i> boxes drawn on the preview, and reused by template forensics</span></td></tr>
+    <tr><td>Text recognition</td><td>CRNN with CTC decoding on each box, with a confidence score</td><td>Sequence model handles variable-length lines without character segmentation.</td><td><span class="ce"><i>cause</i> low confidence on a field</span><span class="ce"><i>effect</i> fuzzy match in stage 4 tolerates it instead of failing</span></td></tr>
+    <tr><td>Field typing</td><td>Regex + keyword rules: PAN <code>[A-Z]{5}[0-9]{4}[A-Z]</code>, roll no, year, CGPA, DOB; issuer keywords (RGPV, MPBSE, Income Tax)</td><td>Deterministic and explainable. A judge or auditor can read the rule. No training data needed.</td><td><span class="ce"><i>cause</i> issuer keyword found</span><span class="ce"><i>effect</i> selects which register stage 4 queries</span></td></tr>
+    <tr><td>Content hash</td><td>Canonical JSON (RFC 8785 style: sorted keys, no spaces, upper-cased values) then SHA-256</td><td>We hash the claim, not the file. A rescan changes every byte but not the claim.</td><td><span class="ce"><i>cause</i> one digit changed</span><span class="ce"><i>effect</i> different <code>content_hash</code>; a clean rescan keeps the same one</span></td></tr>
+  </table>
+  <div class="foot"><span>SAAKSHYA · flow, tech, cause and effect</span><span>2 / 6</span></div>
+</section>
+
+<!-- ============================ PAGE 3: stage 3 -->
+<section class="page">
+  <div class="hd"><span class="num">03</span><div><h2>Audit: five forensic signal families</h2><p>Real tampering touches 0.27–4.17% of pixels (DocForge-Bench 2026). One signal with one threshold misses it, so five independent signals are fused.</p></div></div>
+  <table class="d"><tr><th>Signal (weight)</th><th>Tech / algorithm</th><th>Why this</th><th>Cause → effect</th></tr>
+    <tr><td>ELA (0.30)</td><td>Error Level Analysis. Re-encode as JPEG q=90, take absolute pixel difference. Compare 32 px blocks against the document's own median and MAD.</td><td>A pasted region was compressed a different number of times than its surroundings, so it re-compresses differently. Median/MAD adapts per document instead of a fixed threshold.</td><td><span class="ce"><i>cause</i> patch pasted over CGPA</span><span class="ce"><i>effect</i> blocks there deviate, score rises, contour box drawn, heatmap glows on that spot</span></td></tr>
+    <tr><td>Noise residual (0.20)</td><td>Subtract a median-filtered copy to isolate noise. Standard deviation per 16 px block on flat areas.</td><td>Every camera or scanner leaves a uniform noise floor. A foreign patch carries a different one.</td><td><span class="ce"><i>cause</i> patch from another source or re-save</span><span class="ce"><i>effect</i> flat blocks with outlier noise are counted into the score</span></td></tr>
+    <tr><td>Copy-move (0.20)</td><td>ORB keypoints and descriptors, brute-force Hamming self-match, cluster matches sharing one offset &gt; 20 px.</td><td>Forgers clone seals, photos and signatures inside the same page. Identical descriptors at a constant offset reveal it. ORB is free and fast.</td><td><span class="ce"><i>cause</i> seal duplicated</span><span class="ce"><i>effect</i> dense cluster at one offset, score rises. Repeated glyphs on one text line are ignored on purpose</span></td></tr>
+    <tr><td>Metadata / PDF structure (0.15)</td><td>pypdf: count of xref sections (incremental updates), Producer string, ModDate vs CreationDate. Pillow: EXIF Software tag.</td><td>Editing tools leave file-level traces that pixel edits cannot hide. Immune to AI-generated pixels.</td><td><span class="ce"><i>cause</i> Producer = Photoshop / Canva / ilovepdf, or multiple xrefs</span><span class="ce"><i>effect</i> score rises even if the image looks perfect</span></td></tr>
+    <tr><td>Template / font (0.15)</td><td>Coefficient of variation of OCR box heights per line cluster; issuer keyword expected in header region.</td><td>Inserted text rarely matches the form's exact font size and baseline.</td><td><span class="ce"><i>cause</i> one value set in a different size</span><span class="ce"><i>effect</i> height variance spikes on that line</span></td></tr>
+  </table>
+  <div class="two" style="margin-top:4mm">
+    <div><div class="eyebrow">Fusion</div><pre>tamper = 0.30·ELA + 0.20·noise + 0.20·copy
+       + 0.15·meta + 0.15·template        (0 … 1)</pre>
+      <p style="margin:2mm 0 0;font-size:8.7pt;color:var(--ink2)">Weighted average today. Roadmap: XGBoost on the five scores, calibrated per issuer with conformal prediction for the human-review band.</p></div>
+    <div><div class="eyebrow">Measured on our samples</div>
+      <table class="d" style="margin-top:0"><tr><th>Document</th><th>ELA</th><th>Noise</th><th>Fused</th></tr>
+      <tr><td>rgpv_genuine</td><td>0</td><td>0</td><td class="g"><b>3%</b></td></tr>
+      <tr><td>rgpv_tampered</td><td>80</td><td>75</td><td class="r"><b>42%</b> + register says 7.2, doc says 9.1</td></tr></table></div>
+  </div>
+  <div class="foot"><span>SAAKSHYA · flow, tech, cause and effect</span><span>3 / 6</span></div>
+</section>
+
+<!-- ============================ PAGE 4: stages 4-5 -->
+<section class="page">
+  <div class="hd"><span class="num">04</span><div><h2>Cross-check</h2><p>Ask the authority that issued the document whether the claim is true.</p></div></div>
+  <table class="d"><tr><th>Step</th><th>Tech / algorithm</th><th>Why this</th><th>Cause → effect</th></tr>
+    <tr><td>Register lookup</td><td>SQL lookup by primary key (roll number or PAN) in the issuer's register. Demo: seeded SQLite tables for RGPV, MPBSE, PAN. Production: APISetu / DigiLocker / NAD.</td><td>The only real source of truth is the issuer. Forensics says "edited or not"; the register says "true or not".</td><td><span class="ce"><i>cause</i> issuer has no register</span><span class="ce"><i>effect</i> status <code>no_register</code>, level capped at L1</span><span class="ce"><i>cause</i> key not found</span><span class="ce"><i>effect</i> <code>not_found</code></span></td></tr>
+    <tr><td>Field compare</td><td>Normalise (upper-case, strip spaces and punctuation), numeric tolerance on CGPA / percentage, space-insensitive name match.</td><td>OCR drops spaces and misreads punctuation. Strict equality would reject genuine documents.</td><td><span class="ce"><i>cause</i> doc CGPA 9.1, register 7.2</span><span class="ce"><i>effect</i> <code>mismatch</code> with both values shown side by side, forces L0</span></td></tr>
+    <tr><td>Canonical name</td><td>When the name matches, the register's spelling replaces the OCR spelling.</td><td>Register is authoritative; fixes "RAHULSHARMA".</td><td><span class="ce"><i>cause</i> match</span><span class="ce"><i>effect</i> credential carries the official spelling</span></td></tr>
+    <tr><td>Issuer signature</td><td>PDF checked for a digital-signature marker (DigiLocker). Production: PKCS#7 verification against issuer certificate.</td><td>A valid issuer signature is stronger than any forensic or register check.</td><td><span class="ce"><i>cause</i> signed and tamper &lt; 0.50</span><span class="ce"><i>effect</i> L3 PROVEN</span></td></tr>
+  </table>
+
+  <div class="hd" style="margin-top:7mm"><span class="num">05</span><div><h2>Decide</h2><p>One honest level from two independent kinds of evidence.</p></div></div>
+  <table class="d"><tr><th>Step</th><th>Tech / algorithm</th><th>Why this</th><th>Cause → effect</th></tr>
+    <tr><td>Trust level</td><td>Explicit rule table (page 1) over tamper score and cross-check status.</td><td>Rules are auditable. An officer can be told exactly why. A black-box classifier cannot be challenged by a citizen.</td><td><span class="ce"><i>cause</i> clean forensics but no register</span><span class="ce"><i>effect</i> L1, never a false "verified"</span></td></tr>
+    <tr><td>Human flag</td><td><code>needs_human</code> when tamper is 0.40–0.60 or exactly one minor field mismatches.</td><td>False positives hurt real people. The AI flags; a person decides.</td><td><span class="ce"><i>cause</i> uncertain band</span><span class="ce"><i>effect</i> "Escalated to an officer" with heatmap and register diff in front of them</span></td></tr>
+    <tr><td>Confidence</td><td>Combination of distance from thresholds and number of matched fields.</td><td>Shown on the stamp so officers can prioritise.</td><td><span class="ce"><i>cause</i> score near a threshold</span><span class="ce"><i>effect</i> lower confidence printed under the verdict</span></td></tr>
+  </table>
+  <div class="foot"><span>SAAKSHYA · flow, tech, cause and effect</span><span>4 / 6</span></div>
+</section>
+
+<!-- ============================ PAGE 5: stages 6-7 -->
+<section class="page">
+  <div class="hd"><span class="num">06</span><div><h2>Anchor (the blockchain part)</h2><p>Prove the verdict existed at this time and has not been changed. Nothing personal goes on chain.</p></div></div>
+  <table class="d"><tr><th>Step</th><th>Tech / algorithm</th><th>Why this</th><th>Cause → effect</th></tr>
+    <tr><td>Salted leaf</td><td><code>leaf = SHA-256(salt ‖ content_hash ‖ verdict)</code>, salt = 16 random bytes kept off chain.</td><td>Without a salt, anyone who knows a student's details could hash them and confirm from the ledger that the student was checked.</td><td><span class="ce"><i>cause</i> salt deleted (erasure request)</span><span class="ce"><i>effect</i> leaf still valid on chain but refers to nobody. DPDP-compliant</span></td></tr>
+    <tr><td>Merkle tree</td><td>Pairwise SHA-256 up to one root (RFC 9162 style, last leaf duplicated when odd). Inclusion proof = sibling hashes with left/right position.</td><td>One root commits to any number of verdicts. A verifier checks one verdict with log₂(n) hashes and sees no other record.</td><td><span class="ce"><i>cause</i> 10,000 verdicts in a batch</span><span class="ce"><i>effect</i> 1 ledger write, about 14 hashes per proof</span></td></tr>
+    <tr><td>Hash chain</td><td><code>block_hash = SHA-256(index ‖ time ‖ prev_hash ‖ merkle_root)</code>. Demo: SQLite, single node. Target: Hyperledger Fabric on MeitY Vishvasya.</td><td>Each block commits to the one before. History cannot be rewritten without recomputing everything after it.</td><td><span class="ce"><i>cause</i> one old verdict edited</span><span class="ce"><i>effect</i> its root changes, that block hash changes, every later block breaks. "Verify chain integrity" reports the first broken index</span></td></tr>
+    <tr><td>Rejections too</td><td>L0 verdicts are anchored exactly like approvals.</td><td>A rejection is the record most likely to be disputed or quietly deleted.</td><td><span class="ce"><i>cause</i> forger retries with tweaks</span><span class="ce"><i>effect</i> trail of rejections exists and cannot be erased</span></td></tr>
+    <tr><td>Revocation</td><td>Append <code>SHA-256("REVOKE:" + id)</code> as a new leaf.</td><td>Append-only. Nothing is deleted, it is contradicted later.</td><td><span class="ce"><i>cause</i> officer revokes</span><span class="ce"><i>effect</i> verifier shows "Revoked"</span></td></tr>
+  </table>
+
+  <div class="foot"><span>SAAKSHYA · flow, tech, cause and effect</span><span>5 / 6</span></div>
+</section>
+
+<!-- ============================ PAGE 6: stage 7 + end-to-end chain -->
+<section class="page">
+  <div class="hd"><span class="num">07</span><div><h2>Issue</h2><p>Give the citizen something reusable that anyone can check without calling us.</p></div></div>
+  <table class="d"><tr><th>Step</th><th>Tech / algorithm</th><th>Why this</th><th>Cause → effect</th></tr>
+    <tr><td>Sign</td><td>Ed25519 (EdDSA) over <code>header.payload</code>, compact JWT form. Payload is a minimal W3C Verifiable Credential with level, issuer, claims, anchor.</td><td>64-byte signatures, fast, no parameter pitfalls, supported natively by browsers.</td><td><span class="ce"><i>cause</i> any claim altered after issue</span><span class="ce"><i>effect</i> signature fails, verifier shows "NOT valid"</span></td></tr>
+    <tr><td>QR</td><td>QR code of the verify URL containing the token.</td><td>Works on paper printouts and phones.</td><td><span class="ce"><i>cause</i> scan</span><span class="ce"><i>effect</i> verifier page opens with the token</span></td></tr>
+    <tr><td>Offline verify</td><td>Browser WebCrypto imports the public key (JWK) and verifies Ed25519 locally. PWA service worker caches the app and the key.</td><td>No dependency on our server being up. No tracking of who verifies whom.</td><td><span class="ce"><i>cause</i> no network</span><span class="ce"><i>effect</i> signature still verifies; only revocation status is skipped and says so</span></td></tr>
+  </table>
+  <div class="eyebrow" style="margin-top:6mm">End to end: one tampered marksheet, cause to effect</div>
+  <table class="d"><tr><th>Stage</th><th>What happened</th><th>Evidence produced</th><th>Effect on the next stage</th></tr>
+    <tr><td>Forger</td><td>Pastes "9.1" over CGPA "7.2", re-saves the image</td><td>Patch has different compression and noise</td><td>Traces exist before we ever see the file</td></tr>
+    <tr><td>02 Extract</td><td>OCR reads CGPA = 9.1, issuer = RGPV, roll no</td><td>Typed fields, content hash of the forged claim</td><td>Issuer selects the RGPV register</td></tr>
+    <tr><td>03 Audit</td><td>ELA 80, noise 75 on the patch blocks</td><td>Fused tamper 42%, heatmap on the digit</td><td>Falls in the 0.40–0.60 band: human flag</td></tr>
+    <tr><td>04 Cross-check</td><td>Register row for that roll number says 7.2</td><td>Mismatch: document 9.1 vs register 7.2</td><td>Mismatch forces L0 regardless of pixels</td></tr>
+    <tr><td>05 Decide</td><td>Rule: mismatch → L0, uncertain band → officer</td><td class="r"><b>REJECTED</b>, escalated</td><td>Verdict is fixed and explained</td></tr>
+    <tr><td>06 Anchor</td><td>Salted leaf sealed in a block</td><td>Merkle proof, block hash</td><td>Rejection cannot be deleted or denied later</td></tr>
+  </table>
+  <div class="note"><b>The point for judges.</b> Two independent kinds of evidence (pixels and the issuer's register) reach the same conclusion, a person makes the final call, and the record of that call is provable forever without exposing the student's data.</div>
+  <div class="foot"><span>SAAKSHYA · flow, tech, cause and effect</span><span>6 / 6</span></div>
+</section>
+</body></html>
