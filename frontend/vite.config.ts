@@ -25,6 +25,9 @@ export default defineConfig({
 			workbox: {
 				globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
 				navigateFallback: '/',
+				// adapter-static writes index.html after the SW is generated, so precache the shell by URL;
+				// without it /verify/<jwt> cannot open offline
+				additionalManifestEntries: [{ url: '/', revision: String(Date.now()) }],
 				runtimeCaching: [
 					{ urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i, handler: 'CacheFirst', options: { cacheName: 'fonts', expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 } } },
 					{ urlPattern: /\/api\/public-key$/, handler: 'StaleWhileRevalidate', options: { cacheName: 'pubkey' } }
