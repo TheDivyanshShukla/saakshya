@@ -61,7 +61,7 @@
 	{:else if chain.length === 0}
 		<p class="text-center text-sm faint">No blocks yet. Verify a document and the genesis block will be joined by its first batch.</p>
 	{:else}
-		<div bind:this={strip} class="scrollbar-none overflow-x-auto px-6 pb-4">
+		<div bind:this={strip} class="scrollbar-none overflow-x-auto px-8 pt-6 pb-12">
 			<ol class="mx-auto flex w-max items-center gap-0 pr-8">
 				{#each chain as b, i (b.index)}
 					{@const newest = i === chain.length - 1}
