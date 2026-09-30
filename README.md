@@ -2,7 +2,7 @@
 
 **Verify the claim, not just the paper.**
 
-SISTec Innovation Hackathon 2026 · PS IS-21 (MP Online) · Blockchain-Based Document Verification System · Team Saakshya
+SISTec Innovation Hackathon 2026 · PS SIH4-039 (MP Online) · Blockchain-Based Document Verification System · Team Saakshya
 
 Upload → AI reads & audits (OCR + 5 forensic signal families) → cross-check the issuing authority's register → anchor a salted hash in a Merkle-batched ledger → return a signed credential + offline-verifiable QR.
 

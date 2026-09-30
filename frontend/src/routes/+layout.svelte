@@ -9,7 +9,10 @@
 
 	onMount(async () => {
 		getPublicKey(); // cache the signing key on any online visit, so the verifier works offline later
-		if (pwaInfo) (await import('virtual:pwa-register')).registerSW({ immediate: true });
+		if (!pwaInfo || !('serviceWorker' in navigator)) return;
+		navigator.storage?.persist?.(); // ask the browser not to evict the offline cache (Safari clears idle sites)
+		// the SW's install caches everything the app needs offline (static/sw-warm.js)
+		(await import('virtual:pwa-register')).registerSW({ immediate: true });
 	});
 </script>
 

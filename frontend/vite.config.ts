@@ -25,12 +25,18 @@ export default defineConfig({
 			workbox: {
 				globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
 				navigateFallback: '/',
+				navigateFallbackDenylist: [/^\/api\//],
+				importScripts: ['sw-warm.js'], // fills fonts/api/pubkey caches during install, see static/sw-warm.js
 				// adapter-static writes index.html after the SW is generated, so precache the shell by URL;
 				// without it /verify/<jwt> cannot open offline
 				additionalManifestEntries: [{ url: '/', revision: String(Date.now()) }],
 				runtimeCaching: [
-					{ urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i, handler: 'CacheFirst', options: { cacheName: 'fonts', expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 } } },
-					{ urlPattern: /\/api\/public-key$/, handler: 'StaleWhileRevalidate', options: { cacheName: 'pubkey' } }
+					// statuses 0: the Google Fonts stylesheet loads no-cors (opaque), which CacheFirst skips by default
+					{ urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i, handler: 'CacheFirst', options: { cacheName: 'fonts', cacheableResponse: { statuses: [0, 200] }, expiration: { maxEntries: 150, maxAgeSeconds: 60 * 60 * 24 * 365 } } },
+					{ urlPattern: /\/api\/public-key$/, handler: 'StaleWhileRevalidate', options: { cacheName: 'pubkey' } },
+					// every other GET (stats, ledger, verifications, samples, scan previews): fresh when online,
+					// last copy when offline, so console/ledger/landing still render. POST /api/verify needs the server.
+					{ urlPattern: /\/api\//, handler: 'NetworkFirst', options: { cacheName: 'api', networkTimeoutSeconds: 5, expiration: { maxEntries: 300 } } }
 				]
 			}
 		})
